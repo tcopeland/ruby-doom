@@ -1,0 +1,34 @@
+June 23, 2004 - 0.8:
+Shotguns, commandos, and imps can now be added to maps.
+
+February 03, 2004 - 0.7:
+Sergeants can now be added to maps.
+
+Jan 11 2004 - 0.6:
+Added support for creating a map from a bitmap line drawing.
+
+Dec 16 2003 - 0.5:
+Map creation requires much less code due to the new SimpleLineMap class.
+Added support for barrels.
+
+Dec 14 2003 - 0.4:
+Small maps can now be displayed in a "Nethack" format.  For an example, run "path_creation_example.rb -nethack".
+Tested with DOOM Legacy (http://sourceforge.net/projects/doomlegacy/) on
+Windows, all appears well.
+
+Dec 12 2003 - 0.3:
+Added a higher level API - maps can now be generated using expressions like
+"e200/s400/w200/n400" which would make a 400 x 200 rectangle.  Note that these
+paths need to run clockwise and must be a closed figure with no crossing
+lines.
+Moved the usage examples into separate files.
+
+Dec 12 2003 - 0.2:
+Fixed bug - shorts are no longer decoded as unsigned values.
+DOOM primitive wrappers (i.e., Linedefs, Sidedefs) are in place and can be
+used to make valid wad files.
+
+Dec 10 2003 - 0.1:
+Initial release - mostly wad reading functionality.
+Can parse any DOOM 2 wad file into a Ruby object model.
+Can change the angle the player is facing and save that change.

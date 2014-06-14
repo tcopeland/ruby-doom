@@ -1,0 +1,323 @@
+<html>
+<head><title>Ruby-DOOM</title></head>
+<body>
+
+<h3><center>Ruby-DOOM</center></h3>
+
+<table width="100%">
+<tr>
+<td>
+<a href="#userdocs">User docs</a>
+</td>
+<td>
+<a href="#developer">Developer docs</a>
+</td>
+<td>
+<a href="http://rubyforge.org/project/showfiles.php?group_id=135">Download</a>
+</td>
+<td>
+<a href="http://rubyforge.org/projects/ruby-doom/">Project page</a>
+</td>
+<td>
+<a href="#examples">Examples</a>
+</td>
+<td>
+<a href="#screenshots">Screenshots</a>
+</td>
+<td>
+<a href="#credits">Credits</a>
+</td>
+<td>
+<a href="#legal">Legal</a>
+</td>
+</tr>
+</table>
+
+<p>If you want to generate a DOOM map, you need to use a level editor and manually create the map, either from scratch, or from a template.  Although this works well for most map creation scenarios, it would be nifty if maps could be generated programmatically.  This would allow maps to be generated for <a href="http://cougaar.org/">Cougaar</a> agent community visualization, or <a href="http://pmd.sf.net/">PMD</a> problem visualization, or from a floor plan. 
+<p>Thus, Ruby-DOOM provides a scripting API for creating DOOM maps.  It also provides higher-level APIs to make map creation easier.  
+<p>Here's an example of what you can do with Ruby-DOOM:
+<p><img src="lots_of_stuff_screenshot.png"/>
+
+<hr>
+<a name="userdocs"></a>
+<center>
+<h3>User documentation</h3>
+</center>
+<p>You'll need a couple of things to generate and play DOOM maps using Ruby-DOOM:
+<ul>
+<li>A Ruby (<a href="http://rubyforge.org/project/showfiles.php?group_id=30">Linux/Unix</a>, <a href="http://rubyinstaller.sourceforge.net/">Windows</a>) interpreter
+<li>A node builder to generate the binary space partition (like <a href="http://doombsp.sf.net/">DOOM BSP</a>)
+<li>A DOOM engine (like <a href="http://legacy.newdoom.com/">Legacy DOOM</a>)
+<li>The original .wad file from <a href="http://www.idsoftware.com/store/index.php?view=doom">DOOM</a>
+</ul>
+<p>There are two ways to generate a map - both ways involve writing a small script in Ruby.  This script will call various functions in the Ruby-DOOM API that will set up your map - walls, player position, etc.  There are some examples in the <code>examples.rb</code> script in the release, but here are some more details.
+<p>Here's a script which will create a map from a monochrome uncompressed bitmap:
+<pre>
+b = BMPMap.new("wiggly.bmp")
+b.scale_factor = 2
+b.thinning_factor = 10
+b.set_player Point.new(400, 400)
+b.create_wad("new.wad")
+</pre>
+<p>The bitmap has to be monochrome and uncompressed, and it has to be drawn with a one-pixel-thick line that can't cross itself - in other words, a simple closed curve.
+<p>Here's a script that creates a simple map with some barrels and a couple of bad guys for good shootin' fun:
+<pre>
+require "doom.rb"
+m = SimpleLineMap.new(Path.new(0, 1000, "e300/n200/e300/s200/e800/s500/w800/s200/w300/n200/w300/n400"))
+m.set_player Point.new(50,900)
+m.add_sergeant Point.new(400,700)
+m.add_commando Point.new(400,800)
+m.add_imp Point.new(400,600)
+m.add_shotgun Point.new(150, 900)
+550.step(900, 40) {|x| m.add_barrel Point.new(x,900) }
+m.create_wad("new.wad")
+</pre>
+<p>The important part is the <code>Path.new</code> line - that's where the map outline is specified using a series of directions and lengths separated by slashes - i.e., east 600, north 200, and so on.  Note that the path needs to run clockwise, it must be a closed path (i.e., the last leg should stop at the starting point), and it can't cross back on itself.  
+<p>After you've generated a map (i.e., a ".wad" file), you need to run it thru the aforementioned node builder.  With DOOMBSP, this is as simple as:
+<pre>
+./bsp new.wad -o out.wad
+</pre>
+<p>That's it!  Your new map is ready to play - go shoot those barrels!
+<ul>
+<li>To make it easier to prototype stuff, you can also render small maps using a Nethack-style renderer, i.e.:
+<pre>
+[tom@rubyforge ruby]$ ./path_creation_example.rb -nethack
+. . . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . . .
+. . . . . . X X X X X . . . . . . . . .
+. . . . . . X . . . X . . . . . . . . .
+X X X X X X X . . . X X X . . . . . . .
+X . . . . . . . . . . . X . . . . . . .
+X . . . . . . . . . . . X . . . . . . .
+X . . . . . . . . . . . X . . . . . . .
+X . . . . . . . . . . . X . . . . . . .
+X X X X X X X . . . X X X . . . . . . .
+. . . . . . X . . . X . . . . . . . . .
+. . . . . . X X X X X . . . . . . . . .
+Map generated from e6/n2/e4/s2/e2/s5/w2/s2/w4/n2/w6/n5
+[tom@rubyforge ruby]$
+</pre>
+<li>You can also generate a map using a repeating pattern, see <code>repeating_pattern_example.rb</code> for an example of how to do this.
+<li>You can also read in wads and see information about them; here's a sample run:
+<pre>
+[tom@hal ruby]$ ./doom.rb -v
+Reading WAD into memory
+Done reading, building the object model
+Created MAP01
+Created THINGS
+Created LINEDEFS
+Created SIDEDEFS
+Created VERTEXES
+Created SEGS
+Created SSECTORS
+Created NODES
+Created SECTORS
+Created REJECT
+Created BLOCKMAP
+Object model built
+The file ../../test_wads/simple.wad is a 900 byte PWAD
+It's got 11 lumps, the directory started at byte 724
+MAP01 (0 bytes)
+THINGS (10 bytes)
+ - Player 1 at (224,-416) facing east; flags = 7
+LINEDEFS (112 bytes)
+ - Linedef from 0 to 1; attribute flag is 1; special fx is 0; tag is 0; right sidedef is 0; left sidedef is -1
+ - Linedef from 1 to 2; attribute flag is 1; special fx is 0; tag is 0; right sidedef is 1; left sidedef is -1
+ - Linedef from 2 to 3; attribute flag is 1; special fx is 0; tag is 0; right sidedef is 2; left sidedef is -1
+ - Linedef from 3 to 0; attribute flag is 1; special fx is 0; tag is 0; right sidedef is 3; left sidedef is -1
+ - Linedef from 4 to 5; attribute flag is 1; special fx is 0; tag is 0; right sidedef is 4; left sidedef is -1
+ - Linedef from 5 to 6; attribute flag is 1; special fx is 0; tag is 0; right sidedef is 5; left sidedef is -1
+ - Linedef from 6 to 7; attribute flag is 1; special fx is 0; tag is 0; right sidedef is 6; left sidedef is -1
+ - Linedef from 7 to 4; attribute flag is 1; special fx is 0; tag is 0; right sidedef is 7; left sidedef is -1
+SIDEDEFS (240 bytes)
+ -  Sidedef for sector 0; upper/lower/middle textures are -/-/BROWN96 with offsets of 0/0
+ -  Sidedef for sector 0; upper/lower/middle textures are -/-/BROWN96 with offsets of 0/0
+ -  Sidedef for sector 0; upper/lower/middle textures are -/-/BROWN96 with offsets of 0/0
+ -  Sidedef for sector 0; upper/lower/middle textures are -/-/BROWN96 with offsets of 0/0
+ -  Sidedef for sector 1; upper/lower/middle textures are -/-/BROWN96 with offsets of 0/0
+ -  Sidedef for sector 1; upper/lower/middle textures are -/-/BROWN96 with offsets of 0/0
+ -  Sidedef for sector 1; upper/lower/middle textures are -/-/BROWN96 with offsets of 0/0
+ -  Sidedef for sector 1; upper/lower/middle textures are -/-/BROWN96 with offsets of 0/0
+VERTEXES (32 bytes)
+ -  Vertex at (64,-320)
+ -  Vertex at (384,-320)
+ -  Vertex at (384,-512)
+ -  Vertex at (64,-512)
+ -  Vertex at (640,-320)
+ -  Vertex at (896,-320)
+ -  Vertex at (896,-512)
+ -  Vertex at (640,-512)
+SEGS (96 bytes)
+SSECTORS (8 bytes)
+NODES (28 bytes)
+SECTORS (52 bytes)
+ -  Sector floor/ceiling heights 0/128; floor/ceiling textures FLAT14/FLAT14; light = 128; special = 0; tag = 0
+ -  Sector floor/ceiling heights 0/128; floor/ceiling textures FLAT14/FLAT14; light = 128; special = 0; tag = 0
+REJECT (1 bytes)
+BLOCKMAP (132 bytes)
+</pre>
+</ul>
+
+<hr>
+<a name="developer"></a>
+<center>
+<h3>Developer documentation</h3>
+</center>
+<p>I'll try to document the wad file structure as I go.  Props go out to the many folks out there who have figured out this stuff before I did.  Hopefully I can summarize some of the important points here.
+<p><b>Header</b> - a 12 byte sequence.  <font color="blue">80, 87, 65, 68, 11, 0, 0, 0, 212, 2, 0, 0, 0</font>
+<ul>
+<li>Bytes 0-3: WAD type - either PWAD or IWAD (characters).  <font color="blue">80, 87, 65, 68</font>
+<li>Bytes 4-7: Number of lumps (<a href="#long">long integer</a>). <font color="blue">11, 0, 0, 0</font>
+<li>Bytes 8-12: File offset to the beginning of the directory (long integer). <font color="blue">212, 2, 0, 0, 0</font>
+</ul>
+<p><b>Directory entries</b> - a series of 16 byte sequences.  <font color="blue">13, 0, 0, 0, 10, 0, 0, 0, 84, 72, 73, 78, 71, 83, 0, 0</font>
+<ul>
+<li>Bytes 0-3: The file offset to the start of the lump (long integer).  <font color="blue">13, 0, 0, 0</font>
+<li>Bytes 4-7: Size of the lump (long integer).  <font color="blue">10, 0, 0, 0</font>
+<li>Bytes 8-15: The name of the lump padded with zeros (characters).  <font color="blue">84, 72, 73, 78, 71, 83, 0, 0</font>
+</ul>
+<p><b>Lumps</b> - a bunch of different kinds of data of variable length.
+<ul>
+<li>THINGS - 10 bytes 
+<ul>
+<li>Bytes 0-2: Location (x) (short) 
+<li>Bytes 2-4: Location (y) (short)
+<li>Bytes 4-6: Facing angle (short)
+<li>Bytes 6-8: Type ID (short)
+<li>Bytes 8-10: Flags (short)
+</ul>
+
+<li>LINEDEFS - 12 bytes 
+<ul>
+<li>Bytes 0-2: Start VERTEX (short) 
+<li>Bytes 2-4: End VERTEX (short)
+<li>Bytes 4-6: Attributes (short)
+<li>Bytes 6-8: Special effects type (short)
+<li>Bytes 8-10: Tag (short)
+<li>Bytes 10-12: Right SIDEDEF (short)
+<li>Bytes 12-14: Left SIDEDEF (short)
+</ul>
+
+<li>SIDEDEFS - 30 bytes
+<ul>
+<li>Bytes 0-2: Texture x offset (short)
+<li>Bytes 0-4: Texture y offset (short)
+<li>Bytes 4-12: Upper texture name (8 byte string)
+<li>Bytes 12-20: Lower texture name (8 byte string)
+<li>Bytes 20-28: Middle texture name (8 byte string)
+<li>Bytes 28-30: Sector id (short)
+</ul>
+
+<li>VERTEXES - 4 bytes
+<ul>
+<li>Bytes 0-2: x coordinate (short)
+<li>Bytes 2-4: y coordinate (short)
+</ul>
+
+<li>SEGS (created by node builder)
+<li>SSECTORS (created by node builder)
+<li>NODES (created by node builder)
+
+<li>SECTORS - 26 bytes
+<ul>
+<li>Bytes 0-2: Floor height (short)
+<li>Bytes 2-4: Ceiling height (short)
+<li>Bytes 4-12: Floor texture (8 byte string)
+<li>Bytes 12-20: Ceiling texture (8 byte string)
+<li>Bytes 20-22: Light level (short)
+<li>Bytes 22-24: Special sector (short)
+<li>Bytes 24-26: Tag (short)
+</ul>
+
+<li>REJECT (created by node builder)
+<li>BLOCKMAP (created by node builder)
+</ul>
+<p>
+<ul>
+<li><a name="long"/>All long integers are 32 bit unsigned longs in little-endian format (shorts are signed, 16 bits, little-endian as well).  So the byte sequence <font color="blue">212 2 0 0</font> is really <font color="blue">0 0 2 212</font> which translates to <font color="blue">724</font> decimal.  I'm using the following Ruby snippet to do this transformation:
+<pre>
+bytes.pack("C4").unpack("V")[0]
+</pre>
+<p>Also, I'm a bit of a dolt, so I had to do this to understand this byte packing order.  <font color="blue">0 0 2 212</font> converted to binary is <code>00000000 00000000 00000010 11001010</code>.  So the <code>1</code> is in the <code>512</code> place, so <code>512 + 212 = 724</code>.
+<p>
+</ul>
+
+<hr>
+<a name="examples"></a>
+<center>
+<h3>Examples</h3>
+</center>
+<ul>
+<li>A DOOM map for each project on the <a href="http://pmd.sf.net/scoreboard.html">PMD scoreboard</a>
+</ul>
+
+
+<hr>
+<a name="screenshots"></a>
+<center>
+<h3>Screenshots</h3>
+</center>
+<p>Made using the SimpleLineMap class.
+<ul>
+<li><img src="barrels_soldier_screenshot.png"/>
+</ul>
+<p>Made using SimpleLineMap; lots of barrels and bad guys.
+<ul>
+<li><img src="lots_of_stuff_screenshot.png"/>
+</ul>
+<p>Made using the bitmap-to-DOOM map converter.
+<table>
+<tr>
+<td>
+<img src="wiggly.bmp"/>
+</td>
+<td>
+<img src="wiggly_screenshot.png"/>
+</td>
+</tr>
+</table>
+
+<hr>
+<a name="credits"></a>
+<center>
+<h3>Credits</h3>
+</center>
+<p>Thanks to the many people who made this little project possible:
+<ul>
+<li>John Carmack, John Romero and many other folks at Id Software for writing and then open sourcing DOOM
+<li>Matthew Fell - wrote the Unofficial DOOM specification
+<li>Alina Copeland - discussions of polygon types and structure
+</ul>
+
+<hr>
+<a name="legal"></a>
+<center>
+<h3>Legal</h3>
+</center>
+<p>This section has been copied almost verbatim from the <a href="http://cres1.lancs.ac.uk/~esasb1/doom/uds/intro.html#legal">UDS</a>.  They put things so well there it seems a shame not to reuse their efforts.  So, here we go:
+<p>Please make sure you have read id Software's LICENSE.DOC and README files that came with DOOM. Pertinent portions of those files are repeated here.
+
+<p>The LICENSE.DOC says:
+
+<p><i> "You shall not: rent, lease, sell, distribute for money or other consideration, modify, translate, disassemble, decompile, reverse engineer, or create derivative works based upon the Software. Notwithstanding the foregoing, you may create a map editor, modify maps and make your own maps (collectively referenced as the "Permitted Derivative Works") for the Software. You may not sell or distribute any Permitted Derivative Works but you may exchange the Permitted Derivative Works at no charge amongst other end-users. In order to commercially distribute any such map editor or data utility you must first sign id's Data Utility License and id reserves the right to deny authorization to commercial distribute the any such map editor or data utility. You may request a copy of the Data Editor License from id."</i>
+
+<p><i>"(except for backup purposes) You may not otherwise reproduce, copy or disclose to others, in whole or in any part, the Software."</i>
+
+<p>The README says:
+
+<p><i>"id Software respectfully requests that you do not modify the levels for the shareware version of DOOM. We feel that the distribution of new levels that work with the shareware version of DOOM will lessen a potential user's incentive to purchase the registered version."</i>
+
+<p><i>"If you would like to work with modified levels of DOOM, we encourage you to purchase the registered version of the game."</i>
+
+<p>If you are making add-ons, plan on them not working on the shareware game, and plan on including statements about the trademarks and copyrights that id Software owns, as well as disclaimers that they won't support your add-on product, nor will they support DOOM after it has been modified.
+
+</body>
+<html>
