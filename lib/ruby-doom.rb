@@ -228,7 +228,7 @@ class Codec
     ptr = 0
     format.split(//).each {|x|
       if x == "s"
-        bytes += [values[ptr]].pack("S").unpack("C2")
+        bytes += [values[ptr] || 0].pack("S").unpack("C2")
       elsif x == "l"  
         bytes += [values[ptr]].pack("N").unpack("C4").reverse
       elsif x == "4"
