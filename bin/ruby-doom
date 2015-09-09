@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+
+require 'ruby-doom'
+
+file = ARGV.include?("-f") ? ARGV[ARGV.index("-f") + 1] : "test_wads/simple.wad"
+w = Wad.new(ARGV.include?("-v"))
+w.read(file)
+w.lumps.each do |lump|
+  puts lump.name + " (" + lump.size.to_s + " bytes)"
+  lump.items.each { |t| puts " - " + t.to_s }
+end

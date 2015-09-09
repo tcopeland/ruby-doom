@@ -1,4 +1,8 @@
-Ruby-DOOM provides a scripting API to DOOM level maps.  
+== Description
+
+Ruby-DOOM provides a scripting API to DOOM level maps.
+
+== Overview
 
 You can make a map using a Ruby script and a "path
 specification", like this:
@@ -26,3 +30,12 @@ and it'll produce a list of the lumps (things, vertexes, sectors, etc) contained
 
 Please see the www/ directory for more detailed information, and
 the file "examples.rb" for more examples.
+
+== Doing the next release
+
+Update the version number
+Update CHANGELOG
+Update README to reflect current capabilities
+Make sure the tests run
+Check everything in
+bundle exec gem build ruby-doom.gemspec

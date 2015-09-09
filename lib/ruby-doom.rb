@@ -1,4 +1,4 @@
-#!/usr/local/bin/ruby
+#!/usr/bin/env ruby
 
 class RubyDoom
   VERSION = '0.9.0'
@@ -907,14 +907,3 @@ class Nethack
     res
   end
 end
-
-if __FILE__ == $0
-   file = ARGV.include?("-f") ? ARGV[ARGV.index("-f") + 1] : "../test_wads/simple.wad"
-  w = Wad.new(ARGV.include?("-v"))
-  w.read(file)
-  w.lumps.each do |lump|
-    puts lump.name + " (" + lump.size.to_s + " bytes)"
-    lump.items.each { |t| puts " - " + t.to_s }
-  end
-end
-

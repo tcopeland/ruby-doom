@@ -1,14 +1,11 @@
-# -*- ruby -*-
-
+require 'rake/testtask'
 require 'rubygems'
-require 'hoe'
+require 'bundler/setup'
 
-abort "you _must_ install this gem to release it" if
-  ENV['VERSION'] && ENV['VERSION'] != RubyDoom::VERSION
-
-Hoe.spec "ruby-doom" do
-  developer 'Tom Copeland', 'tom@infoether.com'
-  self.rubyforge_name = "ruby-doom"
+Rake::TestTask.new do |t|
+  t.name = "test:units"
+  t.libs << 'test'
+  t.pattern = 'test/unit/**_test.rb'
 end
 
-# vim:syntax=ruby
+task default: [:"test:units"]

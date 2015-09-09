@@ -13,10 +13,10 @@
 <a href="#developer">Developer docs</a>
 </td>
 <td>
-<a href="http://rubyforge.org/project/showfiles.php?group_id=135">Download</a>
+<a href="https://rubygems.org/gems/ruby-doom">Download</a>
 </td>
 <td>
-<a href="http://rubyforge.org/projects/ruby-doom/">Project page</a>
+<a href="https://github.com/tcopeland/ruby-doom/">Project page</a>
 </td>
 <td>
 <a href="#examples">Examples</a>
@@ -62,7 +62,7 @@ b.create_wad("new.wad")
 <p>The bitmap has to be monochrome and uncompressed, and it has to be drawn with a one-pixel-thick line that can't cross itself - in other words, a simple closed curve.
 <p>Here's a script that creates a simple map with some barrels and a couple of bad guys for good shootin' fun:
 <pre>
-require "doom.rb"
+require "ruby-doom.rb"
 m = SimpleLineMap.new(Path.new(0, 1000, "e300/n200/e300/s200/e800/s500/w800/s200/w300/n200/w300/n400"))
 m.set_player Point.new(50,900)
 m.add_sergeant Point.new(400,700)
@@ -78,10 +78,9 @@ m.create_wad("new.wad")
 ./bsp new.wad -o out.wad
 </pre>
 <p>That's it!  Your new map is ready to play - go shoot those barrels!
-<ul>
-<li>To make it easier to prototype stuff, you can also render small maps using a Nethack-style renderer, i.e.:
+<p>To make it easier to prototype stuff, you can also render small maps using a Nethack-style renderer, i.e.:</p>
 <pre>
-[tom@rubyforge ruby]$ ./path_creation_example.rb -nethack
+$ ./path_creation_example.rb -nethack
 . . . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . . .
@@ -103,12 +102,14 @@ X X X X X X X . . . X X X . . . . . . .
 . . . . . . X . . . X . . . . . . . . .
 . . . . . . X X X X X . . . . . . . . .
 Map generated from e6/n2/e4/s2/e2/s5/w2/s2/w4/n2/w6/n5
-[tom@rubyforge ruby]$
 </pre>
-<li>You can also generate a map using a repeating pattern, see <code>repeating_pattern_example.rb</code> for an example of how to do this.
-<li>You can also read in wads and see information about them; here's a sample run:
+
+<p>You can also generate a map using a repeating pattern, see <code>repeating_pattern_example.rb</code> for an example of how to do this.</p>
+
+<p>You can also read in wads and see information about them; here's a sample run:</p>
+
 <pre>
-[tom@hal ruby]$ ./doom.rb -v
+$ ./ruby-doom.rb -v
 Reading WAD into memory
 Done reading, building the object model
 Created MAP01
@@ -164,7 +165,6 @@ SECTORS (52 bytes)
 REJECT (1 bytes)
 BLOCKMAP (132 bytes)
 </pre>
-</ul>
 
 <hr>
 <a name="developer"></a>
@@ -267,11 +267,11 @@ bytes.pack("C4").unpack("V")[0]
 </center>
 <p>Made using the SimpleLineMap class.
 <ul>
-<li><img src="barrels_soldier_screenshot.png"/>
+<ol><img src="barrels_soldier_screenshot.png"/></ol>
 </ul>
 <p>Made using SimpleLineMap; lots of barrels and bad guys.
 <ul>
-<li><img src="lots_of_stuff_screenshot.png"/>
+<ol><img src="lots_of_stuff_screenshot.png"/></ol>
 </ul>
 <p>Made using the bitmap-to-DOOM map converter.
 <table>
