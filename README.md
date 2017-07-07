@@ -28,7 +28,7 @@ Ruby-DOOM can also parse any DOOM II map into an object model.  Run it like this
 
 and it'll produce a list of the lumps (things, vertexes, sectors, etc) contained within the file.
 
-Please see the www/ directory for more detailed information, and
+Please see the [www/](https://cdn.rawgit.com/tcopeland/ruby-doom/master/www/) directory for more detailed information, and
 the file "examples.rb" for more examples.
 
 == Doing the next release
