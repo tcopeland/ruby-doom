@@ -33,9 +33,9 @@ the file "examples.rb" for more examples.
 
 ## Doing the next release
 
-Update the version number
-Update CHANGELOG
-Update README to reflect current capabilities
-Make sure the tests run
-Check everything in
-bundle exec gem build ruby-doom.gemspec
+* Update the version number
+* Update CHANGELOG
+* Update README to reflect current capabilities
+* Make sure the tests run
+* Check everything in
+* bundle exec gem build ruby-doom.gemspec
